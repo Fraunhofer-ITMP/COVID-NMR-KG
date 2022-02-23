@@ -8,7 +8,7 @@ from pubchempy import get_compounds
 
 def normalize_chemicals():
     chemical_list = set(pd.read_csv(
-        'data/graph_data.csv', sep='\t', usecols=['source']
+        'data/normalized_data/graph_data.csv', sep='\t', usecols=['source']
     )['source'].to_list())
 
     chemical_data = []
@@ -43,7 +43,7 @@ def normalize_chemicals():
 def normalize_proteins():
     # TODO: Find another way to do this
     protein_list = set(pd.read_csv(
-        'data/graph_data.csv', sep='\t', usecols=['target']
+        'data/normalized_data/graph_data.csv', sep='\t', usecols=['target']
     )['target'].to_list())
 
     protein_data = []
