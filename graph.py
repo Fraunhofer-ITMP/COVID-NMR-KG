@@ -84,6 +84,11 @@ def create_protein_nodes(node_dict: dict):
 
     return node_dict
 
+def create_chembl_nodes(node_dict: dict):
+    """Method to create protein nodes"""
+    df = pd.read_excel('data/normalized_data/protein.csv', sep='\t')
+
+
 
 def save_graph(bel_graph: BELGraph):
     """Save the BEL graph"""
