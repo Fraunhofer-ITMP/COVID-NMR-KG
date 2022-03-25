@@ -7,10 +7,12 @@ from tqdm import tqdm
 def preprocess_file():
 
     df = pd.read_csv(
-        'data/raw/NMR-Protein-Screening-hits.txt',
+        'data/raw/NMR-Protein-Screening-hits_Protein_Sequence.txt',
         sep='\t',
         dtype=str,
-        encoding='utf-8'
+        encoding='unicode_escape',
+        skiprows=[1,2],
+        engine='python'
     )
 
     graph_data = []
@@ -27,7 +29,7 @@ def preprocess_file():
                 })
 
     graph_df = pd.DataFrame(graph_data)
-    graph_df.to_csv('data/normalized_data/graph_data.csv', sep='\t', index=False)
+    graph_df.to_csv('data/normalized_data/graph_data.csv', sep=',', index=False)
 
 
 if __name__ == '__main__':
