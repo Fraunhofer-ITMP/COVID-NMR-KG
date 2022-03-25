@@ -8,4 +8,5 @@ You can execute NMR_data_Results.ipynb to get all the results or alternatively i
 # Graph summary
 
 Number of Nodes: 674
+
 Number of Edges: 2896
