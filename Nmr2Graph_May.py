@@ -367,3 +367,165 @@ def Ret_chembl_protein(sourceList):
     protein_List = list(filter(None, protein_List))
     return (protein_List)
 
+
+def frag_Morgan_FPA(fragData,fragData_smilesCol,RefData,RefData_smilesCol,RefData_idcol,threshold):
+    
+    fpa_50 = []
+    
+    frag_smiles = fragData[fragData_smilesCol]
+    frag_smiles = list(set(frag_smiles))
+    print('FragLen: ',len(frag_smiles))
+    pdb_smiles = list(set(RefData[RefData_smilesCol]))
+    print('RefLen: ',len(pdb_smiles))
+  
+    for item in tqdm(frag_smiles):
+        
+        try:
+            item_str = Chem.MolFromSmiles(item)
+            #item_fp = Chem.RDKFingerprint(item_str)
+            item_fp = AllChem.GetMorganFingerprint(Chem.MolFromSmiles(item),4)
+
+        except:
+            continue
+
+        for jtem in pdb_smiles:
+            try:
+                jtem_str = Chem.MolFromSmiles(jtem)
+                #jtem_fp = Chem.RDKFingerprint(jtem_str)
+                jtem_fp = AllChem.GetMorganFingerprint(Chem.MolFromSmiles(jtem),4)
+                #sim_coe = DataStructs.FingerprintSimilarity(item_fp,jtem_fp)
+                sim_coe = DataStructs.DiceSimilarity(item_fp,jtem_fp)
+                
+                if sim_coe >= threshold:    
+                                             
+                    #print(item,' ',jtem)
+                    #print(sim_coe)
+                    
+                    #temp = {'Frag':item,'Ligand SMILES':jtem,'FPA':sim_coe}
+                    
+                    x = fragData[fragData['Column 2']==item].index.values
+                    y = RefData[RefData[RefData_smilesCol]==jtem].index.values
+                    #print(x[0])
+                    #print(type(x))
+                    #print('x',x)
+                    #print(fragData.loc[x, 'Column 1'][0])
+                    
+                    f= fragData['PubChem CID'][x[0]]
+                    r = RefData[RefData_idcol][y[0]]
+                    #print(fragData.loc[x, 'PubChem CID'][0])
+                    
+                          
+                    temp = {'Frag_id':f,'Frag':item,'Ref SMILES':jtem,'Ref_id':r,'FPA':sim_coe}    
+                    #fpa_50.update(temp)
+
+                    mols = [item_str,jtem_str]
+                    mcs = rdFMCS.FindMCS(mols,timeout=5)
+                    m1 = Chem.MolFromSmarts(mcs.smartsString)
+                    #print(m1)
+                    try:
+                        m2 = Chem.MolToSmiles(m1)
+                        #print(m2)
+                        m2 = m2.replace(":","")
+                        #print(m2) 
+                        #m3 = Chem.MolFromSmiles(m2)
+                        #m_wt = Descriptors.MolWt(m3)
+                        #print(m_wt)
+                        temp.update({'MCS':m2})
+                    
+                    except:
+                        continue
+                        
+                    fpa_50.append(temp)
+                    
+#                     with open('data/normalized_data/SimilaritySearch_Apr26.json','w') as f:
+#                         json.dump(fpa_50,f,indent=2,ensure_ascii=False)
+
+            except:
+                continue
+                
+    return(fpa_50)
+
+def frag_Tanimoto_FPA(fragData,fragData_smilesCol,RefData,RefData_smilesCol,RefData_idcol,threshold):
+    
+    fpa_50 = []
+    
+    frag_smiles = fragData[fragData_smilesCol]
+    frag_smiles = list(set(frag_smiles))
+    print('FragLen: ',len(frag_smiles))
+    pdb_smiles = list(set(RefData[RefData_smilesCol]))
+    print('RefLen: ',len(pdb_smiles))
+  
+    for item in tqdm(frag_smiles):
+        
+        try:
+            item_str = Chem.MolFromSmiles(item)
+            item_fp = Chem.RDKFingerprint(item_str)
+            #item_fp = AllChem.GetMorganFingerprint(Chem.MolFromSmiles(item),4)
+
+        except:
+            continue
+
+        for jtem in pdb_smiles:
+            try:
+                jtem_str = Chem.MolFromSmiles(jtem)
+                jtem_fp = Chem.RDKFingerprint(jtem_str)
+                #jtem_fp = AllChem.GetMorganFingerprint(Chem.MolFromSmiles(jtem),4)
+                sim_coe = DataStructs.FingerprintSimilarity(item_fp,jtem_fp)
+                #sim_coe = DataStructs.DiceSimilarity(item_fp,jtem_fp)
+                
+                if sim_coe >= threshold:    
+                    
+                    x = fragData[fragData['Column 2']==item].index.values
+                    y = RefData[RefData[RefData_smilesCol]==jtem].index.values
+
+                    f= fragData['PubChem CID'][x[0]]
+                    r = RefData[RefData_idcol][y[0]]
+                    #print(fragData.loc[x, 'PubChem CID'][0])
+                                              
+                    temp = {'Frag_id':f,'Frag':item,'Ref SMILES':jtem,'Ref_id':r,'FPA':sim_coe}    
+                    #fpa_50.update(temp)
+
+                    mols = [item_str,jtem_str]
+                    mcs = rdFMCS.FindMCS(mols,timeout=5)
+                    m1 = Chem.MolFromSmarts(mcs.smartsString)
+                    #print(m1)
+                    try:
+                        m2 = Chem.MolToSmiles(m1)
+                        #print(m2)
+                        m2 = m2.replace(":","")
+                        #print(m2) 
+                        #m3 = Chem.MolFromSmiles(m2)
+                        #m_wt = Descriptors.MolWt(m3)
+                        #print(m_wt)
+                        temp.update({'MCS':m2})
+                    
+                    except:
+                        continue
+                        
+                    fpa_50.append(temp)
+                    
+#                     with open('data/normalized_data/SimilaritySearch_Apr26.json','w') as f:
+#                         json.dump(fpa_50,f,indent=2,ensure_ascii=False)
+
+            except:
+                continue
+                
+    return(fpa_50)
+
+#remove salts
+
+def remove_salt(df,colname):
+    temp = []
+    for item in df[colname]:
+        
+        if '.' not in str(item):
+            temp.append(item)
+            
+        if '.' in str(item):
+            x = item.split('.')
+            x = max(x, key=len)
+            temp.append(x)
+            #print(x)
+    
+    df[colname] = temp
+    return(df)
