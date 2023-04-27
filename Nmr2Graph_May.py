@@ -19,6 +19,7 @@ from chembl_webresource_client.new_client import new_client
 import pubchempy
 import pickle
 import re
+from tqdm import tqdm
 
 #function to retrieve mechanisms from ChEMBL
 
