@@ -1,5 +1,17 @@
+import pickle
+import re
+from tqdm import tqdm
 import pybel
 import pandas as pd
+import pickle
+import copy
+from copy import deepcopy
+import random
+import json
+import os
+from collections import defaultdict
+from pathlib import Path
+
 from pybel.dsl import Protein
 from pybel.dsl import Abundance
 from pybel.dsl import Pathology
@@ -9,7 +21,7 @@ from pybel.dsl import Gene
 from pybel.dsl import MicroRna
 from pybel.dsl import Rna
 from pybel.dsl import Fragment
-import chembl_webresource_client
+
 import openpyxl
 import networkx as nx
 from pybel.io.jupyter import to_jupyter
@@ -17,9 +29,16 @@ import matplotlib.pyplot as plt
 import chembl_webresource_client
 from chembl_webresource_client.new_client import new_client
 import pubchempy
-import pickle
-import re
-from tqdm import tqdm
+
+
+from rdkit import Chem, DataStructs
+from rdkit.Chem import AllChem, Draw, MACCSkeys, Descriptors, PandasTools, rdFMCS
+
+#import xlsxwriter
+from rdkit.Chem.Draw import IPythonConsole
+from rdkit.Chem.SaltRemover import SaltRemover
+
+
 
 #function to retrieve mechanisms from ChEMBL
 
@@ -458,13 +477,9 @@ def frag_Tanimoto_FPA(fragData,fragData_smilesCol,RefData,RefData_smilesCol,RefD
   
     for item in tqdm(frag_smiles):
         
-        try:
-            item_str = Chem.MolFromSmiles(item)
-            item_fp = Chem.RDKFingerprint(item_str)
-            #item_fp = AllChem.GetMorganFingerprint(Chem.MolFromSmiles(item),4)
-
-        except:
-            continue
+        item_str = Chem.MolFromSmiles(item)
+        item_fp = Chem.RDKFingerprint(item_str)
+        #item_fp = AllChem.GetMorganFingerprint(Chem.MolFromSmiles(item),4)
 
         for jtem in pdb_smiles:
             try:
